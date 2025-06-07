@@ -1,0 +1,16 @@
+ 
+pandas 
+numpy 
+scikit-learn 
+matplotlib 
+seaborn 
+jupyter 
+geopandas 
+xgboost 
+tensorflow 
+torch 
+torchvision 
+statsmodels 
+requests 
+pillow 
+plotly 
