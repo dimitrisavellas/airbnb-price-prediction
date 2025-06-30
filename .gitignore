@@ -3,4 +3,5 @@ __pycache__/
 .env 
 data/raw/*.csv 
 data/raw/*.gz 
-models/*.pkl 
+data/external/airbnb_images.zip
+
