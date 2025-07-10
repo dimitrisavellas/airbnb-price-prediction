@@ -1,0 +1,7 @@
+Step 1: Data gathering & cleaning 
+Step 2: Web scraping the airbnb page to obtain as many relevant photos as we could through API calls 
+Step 3: Get rid of junk image files 
+Step 4: Feature engineering
+Step 5: Experiment with different models 
+Step 6: Interpretation and ensemble of the models 
+Step 7: Deployment 

@@ -1,0 +1,219 @@
+DATA CLEANING:
+Since the team wasn't sure what types of data we wanted to use we just cleaned all available data(tabular,text,spatial,image) so we could choose freely as we progressed.
+Text data: only kept english reviews 
+Spatial data: neighbourhoods and neighbourhood groups 
+Tabular data: Filter for missing values and outliers (from ~14000 unique listings to ~9000)
+Image data: Web scraping the airbnb website for images of the properties 
+
+
+Feature Engineering:
+One-hot-encoded the neighbourhood groups 
+Calculated the distance from columns[latitude,longitude] of the properties to tourist attractions,main streets, crowdy places.
+Used the coordinates of ten places in Berlin and then one hot encoded the distance column 
+One hot encoded the amenities column(it was a gold mine for predictions)
+
+MODELING:
+Started with a simple linear-regression model as a baseline 
+Two linear regression models were trained to predict real estate prices: one on original price values and another on log-transformed prices. The log-transformed model shows significantly improved Mean Absolute Error (MAE) while maintaining similar R² performance, indicating better relative accuracy across different price ranges.
+
+Improved Test Performance with Log Transformation
+
+Test R² improvement: 0.4907 → 0.5191 (+5.8%)
+Test MAE reduction: €37.23 → €18.99 (-49%)
+Test RMSE improvement: €57.54 → €55.92 (-2.8%)
+
+
+Airbnb Daily Price Prediction Model
+Multi-Layer Perceptron (MLP) Implementation
+Executive Summary
+A deep learning model was developed to predict Airbnb daily rental prices using a Multi-Layer Perceptron (MLP) architecture. The model achieves a Mean Absolute Percentage Error (MAPE) of 24.25% with an average prediction error of $25 per night, demonstrating solid performance for short-term rental price prediction.
+
+Dataset Overview
+
+Dataset Size: 8,898 Airbnb listings
+Features: 81 input features (after target removal)
+Target Variable: Daily rental price (log-transformed)
+Price Range: $10 - $300 per night
+Average Price: ~$103 per night
+
+Data Splits
+
+Training Set: 80% (7,118 samples)
+Validation Set: 8% (712 samples)
+Test Set: 20% (1,780 samples)
+
+
+Model Architecture
+MLP Configuration
+pythonMLP(
+  input_size=81,
+  hidden_sizes=[512, 256, 128],
+  dropout_rate=0.3,
+  output_size=1
+)
+Architecture Details:
+
+Input Layer: 81 features
+Hidden Layer 1: 512 neurons + ReLU + BatchNorm + Dropout(0.3)
+Hidden Layer 2: 256 neurons + ReLU + BatchNorm + Dropout(0.3)
+Hidden Layer 3: 128 neurons + ReLU + BatchNorm + Dropout(0.3)
+Output Layer: 1 neuron (regression)
+Total Parameters: 208,129
+
+Training Configuration
+
+Loss Function: Mean Squared Error (MSE)
+Optimizer: Adam (lr=0.001, weight_decay=1e-5)
+Scheduler: ReduceLROnPlateau (patience=10, factor=0.5)
+Early Stopping: 20 epochs patience
+Batch Size: 256
+Training Epochs: 100 (stopped early if no improvement)
+
+
+Data Preprocessing
+Target Transformation
+pythonlistings['price'] = np.log(listings['price'])
+
+Log transformation applied to handle price skewness
+Ensures model optimizes for relative rather than absolute errors
+Critical for fair treatment across different price ranges
+
+Feature Normalization
+
+StandardScaler applied to all input features
+Statistics calculated from training set only
+Same normalization applied to validation and test sets
+
+
+Custom PyTorch Dataset class
+Handles normalization using training set statistics
+Converts data to PyTorch tensors
+
+
+Model Performance:
+Training Results
+
+Training Duration: 126.91 seconds
+Best Validation Loss: 0.0999 (log scale)
+Final Training R²: 0.6541 (log scale)
+
+Current Limitations:
+
+Static Model: Doesn't account for real-time demand/supply
+Seasonal Blind Spots: May miss holiday/event pricing spikes
+
+Potential Improvements:
+
+Feature Engineering: Add temporal features (day of week, seasonality)
+External Data: Integrate events, weather, local attractions
+Ensemble Methods: Combine with other algorithms
+Real-time Updates: Incorporate dynamic market conditions
+Segmentation: Separate models for different property types/locations
+
+Random Forest Regressor - Best Model Performance
+Optimal Configuration
+RandomForestRegressor(n_estimators=100, max_depth=8, random_state=42)
+Performance Metrics
+
+Test RMSE: 0.0828 (log scale)
+Test R²: 0.6006 (60% variance explained)
+Test MAE: 0.0619 (log scale)
+
+Key Results
+The model achieves strong predictive performance with controlled overfitting (training RMSE: 0.0700 vs test RMSE: 0.0828). The 100-tree ensemble with maximum depth 8 represents the optimal balance between accuracy and computational efficiency. This configuration outperforms single decision trees and shows no improvement with 200 estimators, indicating efficient hyperparameter selection. The model explains 60% of Airbnb price variance, translating to approximately ±20% prediction accuracy in real dollar terms.
+
+
+Image-Based Price Prediction Model
+Executive Summary
+A deep learning CNN model was developed to predict Airbnb daily rental prices using only property images. The model achieved a test MAE of $61.43 with 32.1% average prediction error, demonstrating the feasibility of image-based price estimation but highlighting the challenges of predicting prices from visual features alone.
+
+Dataset Overview
+
+Total Listings: 8,170 matched properties
+Image Dataset: 40,590 total image-price pairs
+
+Training: 32,475 pairs (80%)
+Validation: 4,064 pairs (10%)
+Test: 4,051 pairs (10%)
+
+
+
+Median Price: $95/night
+
+Data Processing
+
+Image Filtering: Files >5MB excluded for memory efficiency
+Max Images per Listing: 5 images to balance dataset
+Target Transformation: Log-transformed prices for stable training
+
+
+Model Architecture
+CNN Architecture: ResNet18-Based Predictor
+pythonAirbnbPricePredictor(
+  backbone: ResNet18 (pre-trained ImageNet weights)
+  regression_head: [
+    Linear(512 → 512) + ReLU + BatchNorm + Dropout(0.3)
+    Linear(512 → 256) + ReLU + BatchNorm + Dropout(0.2)  
+    Linear(256 → 128) + ReLU + Dropout(0.1)
+    Linear(128 → 1)
+  ]
+)
+Key Components:
+
+Backbone: Pre-trained ResNet18 for feature extraction
+Input Size: 224×224 RGB images
+Regression Head: 4-layer MLP with batch normalization and dropout
+Output: Single value (log-transformed price)
+
+Training Configuration
+
+Loss Function: MSE Loss (on log prices)
+Optimizer: AdamW (lr=0.0001, weight_decay=0.01)
+Scheduler: ReduceLROnPlateau (patience=3, factor=0.5)
+Mixed Precision: Enabled for faster training
+Early Stopping: 7 epochs patience
+Batch Size: 64
+
+
+Performance Results
+Training Progress
+
+Training Duration: 16 epochs (early stopped)
+Best Validation Loss: 0.2961 (epoch 9)
+Final Training Time: ~2 hours on GPU
+
+Test Set Performance
+MetricValueTest Loss0.4048 (log scale)Test MAE$61.43Average Error32.1%
+Sample Predictions Analysis
+
+Best Prediction: 5.1% error ($115 actual vs $109 predicted)
+Worst Prediction: 72.4% error ($56 actual vs $97 predicted)
+Typical Range: 15-40% prediction errors
+
+
+Key Findings
+1. Image-Only Limitations
+Why 32% error is expected:
+
+Missing Critical Features: Location, amenities, size not visible in images
+Subjective Visual Assessment: Image quality doesn't directly correlate with price
+Context Dependence: Same room type has different values in different neighborhoods
+
+2. Model Performance Analysis
+Strengths:
+
+Successfully learned visual patterns associated with pricing
+Reasonable performance for luxury properties (good interior = higher price)
+Stable training with proper regularization
+
+Weaknesses:
+
+Struggles with budget properties that may have good photos
+High variance in predictions (32% average error)
+
+Image Quantity Optimization
+5 vs 10 Images Comparison: Testing revealed that limiting to 5 images per listing significantly outperformed using 10 images. 
+The 5-image model achieved $47.19 validation MAE compared to $50.93 for 10 images, representing a 7.3% improvement. 
+This demonstrates that quality over quantity applies strongly to image-based price prediction, 
+as hosts typically place their best photos first and additional images introduce noise rather than valuable signal. 
+The 5-image constraint also provided 2x faster training while maintaining better generalization to unseen properties.
