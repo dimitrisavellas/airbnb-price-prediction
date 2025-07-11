@@ -219,3 +219,19 @@ as hosts typically place their best photos first and additional images introduce
 The 5-image constraint also provided 2x faster training while maintaining better generalization to unseen properties.
 
 Finally we ensembled the linear regression model, the MLP, and RandomForest to one model as a final step 
+** Ensemble Model Future Improvements**
+Current Performance
+Ensemble R² = 0.660 (MLP: 0.688, RF: 0.564, LR: 0.582)
+Improvement Strategies
+1. Stacking Ensemble (Priority 1)
+Train meta-model to optimally combine predictions instead of fixed weights.
+Expected: R² = 0.69-0.71
+2. MLP Architecture Diversification (Priority 2)
+Create ensemble of MLPs with different architectures ([512,256,128], [1024,512,256], [256,256,256,128]).
+Expected: R² = 0.70-0.72
+3. Feature Engineering (Priority 3)
+Add interaction features: bedrooms_per_guest, review_density, amenity_luxury_ratio, premium_location indicators.
+Expected: R² = 0.67-0.69
+4. Dynamic Weighting
+Adjust model weights based on property complexity (amenity count, accommodates, location tier).
+Expected: R² = 0.67-0.69
