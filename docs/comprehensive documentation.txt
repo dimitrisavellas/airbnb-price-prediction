@@ -217,3 +217,5 @@ The 5-image model achieved $47.19 validation MAE compared to $50.93 for 10 image
 This demonstrates that quality over quantity applies strongly to image-based price prediction, 
 as hosts typically place their best photos first and additional images introduce noise rather than valuable signal. 
 The 5-image constraint also provided 2x faster training while maintaining better generalization to unseen properties.
+
+Finally we ensembled the linear regression model, the MLP, and RandomForest to one model as a final step 
